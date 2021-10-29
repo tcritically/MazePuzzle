@@ -20,6 +20,8 @@
 // #define ANALOG
 // #define PWM
 
+// help
+
 #include <stdbool.h> // booleans, i.e. true and false
 #include <stdio.h>   // sprintf() function
 #include <stdlib.h>  // srand() and random() functions
