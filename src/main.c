@@ -39,7 +39,7 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    InitializePin(GPIOB, GPIO_PIN_4 | GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
     // is required, since there's one on the board)
@@ -56,14 +56,21 @@ int main(void)
     // Wait for the user to push the blue button, then blink the LED.
 
     // wait for button press (active low)
+
+
     while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
     {
     }
 
     while (1) // loop forever, blinking the LED
     {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-        HAL_Delay(250);  // 250 milliseconds == 1/4 second
+        if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == false) {
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+            while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13 == false)) {
+            }
+        }
+        
+        //HAL_Delay(10000);  // 250 milliseconds == 1/4 second
     }
 #endif
 
