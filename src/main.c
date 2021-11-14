@@ -59,7 +59,6 @@ int main(void)
 
     // wait for button press (active low)
     while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-
     }
     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
 
