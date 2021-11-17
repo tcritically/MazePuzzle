@@ -26,8 +26,73 @@
 
 #include "ece198.h"
 
+// functions for program
+void setLEDArray(void);
+void setLEDArray(void) {
+    // updating the board
+    // setting player position
+
+}
+void renderLEDColumn(unsigned int column);
+void renderLEDColumn(unsigned int column) {
+    // parameter is column to render
+
+}
+
+// possible function for checking victory? (could change to a void function as well)
+// would be nice to pass these by constant reference (coding best practices :) )
+void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY);
+void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY) {
+    // designated victory coords
+    bool return_value = false;
+    if (playerX == victoryX && playerY == victoryY) {
+        return_value = true;
+    }
+    // probably could adjust to just show all leds on here
+    if (return_value == true) {
+        for (int i = 0; i < 9; ++i) {
+        // set all the GPIO pins connected to lighting up the leds to high
+        }
+    }
+
+}
+
+// strings are weird, we could use ints for move types instead?
+// function checks if move made is possible
+bool legalMove(bool LEDArray[9], char moveType[]);
+bool legalMove(bool LEDArray[9], char moveType[]) {
+    bool return_value = true;
+    // note: player is at index 4
+    if (moveType == "RIGHT") {
+        return_value = (LEDArray[5] == 0);
+    } else if (moveType == "LEFT") {
+        return_value = (LEDArray[3] == 0);
+    } else if (moveType == "UP") {
+        return_value = (LEDArray[1] == 0);
+    } else {
+        //moveTYPE == down
+        return_value = (LEDArray[7] == 0);
+    }
+    return return_value;
+}
+
 int main(void)
 {
+    // MAZE CODE //
+    ///////////////
+
+    // C does not like variable sizes for arrays
+    // large aray (7x7) (sample values in)
+    bool mazeArray[49] = {};
+
+    // smaller array (3x3) (filler code in)
+    bool LEDArray[9]  = {0, 1, 0,
+                         0, 0, 0,
+                         1, 0, 0
+    };
+
+    // while loop later on which is main game loop
+
     HAL_Init(); // initialize the Hardware Abstraction Layer
 
     // Peripherals (including GPIOs) are disabled by default to save power, so we
