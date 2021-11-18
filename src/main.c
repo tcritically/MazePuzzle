@@ -28,14 +28,40 @@
 
 // function declarations
 void setLEDArray(void);
-void renderLEDColumn(unsigned int *column, int pinArray[49]);
-void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY);
+
+void renderLEDColumn(
+    unsigned int *column, 
+    const unsigned int pinArray[49]
+);
+
+void atVictoryPosition(
+    const unsigned int posx, 
+    const unsigned int poxy, 
+    const unsigned int winx, 
+    const unsigned int winy
+);
+
 ///*bool legalMove(bool LEDArray[49], char moveType[]);
 //whenever we use a move method we need to call setLEDArray right after exiting the move method
-void moveUp(int *posy, bool LEDArray[49]);
-void moveDown(int *posy, bool LEDArray[49]);
-void moveLeft(int *posx, bool LEDArray[49]);
-void moveRight(int *posx, bool LEDArray[49]);
+void moveUp(
+    unsigned int *posy, 
+    const bool LEDArray[49]
+);
+
+void moveDown(
+    unsigned int *posy, 
+    const bool LEDArray[49]
+);
+
+void moveLeft(
+    unsigned int *posx, 
+    const bool LEDArray[49]
+);
+
+void moveRight(
+    unsigned int *posx, 
+    const bool LEDArray[49]
+);
 
 //function definitions
 void setLEDArray(void) {
@@ -44,23 +70,28 @@ void setLEDArray(void) {
 
 }
 
-void renderLEDColumn(unsigned int *column, int pinArray[49]) {
-    
+void renderLEDColumn(
+    unsigned int *column, 
+    const unsigned int pinArray[49]
+) {
     //render code
     //column needs to be passthrough
-
     if (*column == 0){
         *column = 6;
     }
     else{
         --*column;
     }
-
 }
 
 // possible function for checking victory? (could change to a void function as well)
 // would be nice to pass these by constant reference (coding best practices :) )
-void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY) {
+void atVictoryPosition(
+    const unsigned int posx, 
+    const unsigned int posy, 
+    const unsigned int winx, 
+    const unsigned int winy
+) {
     // designated victory coords
     bool return_value = false;
     if (playerX == victoryX && playerY == victoryY) {
@@ -72,7 +103,6 @@ void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, c
         // set all the GPIO pins connected to lighting up the leds to high
         }
     }
-
 }
 
 // strings are weird, we could use ints for move types instead?
@@ -98,36 +128,40 @@ bool legalMove(bool LEDArray[49], char moveType[]) {
 //player is at index 24
 //row 0 is the lowest row
 //column 0 is the leftmost
-void moveUp(int *posy, bool LEDArray[49]){
-
+void moveUp(
+    unsigned int *posy, 
+    const bool LEDArray[49]
+){
     if(LEDArray[17] == 0){
         --posy;
     }
-
 }
 
-void moveDown(int *posy, bool LEDArray[49]){
-
+void moveDown(
+    unsigned int *posy, 
+    const bool LEDArray[49]
+){
     if(LEDArray[31] == 0){
         ++posy;
     }
-
 }
 
-void moveLeft(int *posx, bool LEDArray[49]){
-
+void moveLeft(
+    unsigned int *posx, 
+    const bool LEDArray[49]
+){
     if(LEDArray[23] == 0){
         --posx;
     }
-
 }
 
-void moveRight(int *posx, bool LEDArray[49]){
-
+void moveRight(
+    unsigned int *posx, 
+    const bool LEDArray[49]
+){
     if(LEDArray[25] == 0){
         ++posx;
     }
-
 }
 
 int main(void)
@@ -136,22 +170,22 @@ int main(void)
     ///////////////
 
     // C does not like variable sizes for arrays
-    // large array (10x10) (sample values in)
-    bool mazeArray[100] = {};
+    // large array (10x10), constant (sample values in)
+    const bool mazeArray[100] = {};
 
     // smaller array (7x7) (filler code in)
     bool LEDArray[49]  = {};
 
     //current player position
-    int posx = 0;
-    int posy = 0;
+    unsigned int posx = 0;
+    unsigned int posy = 0;
 
-    //winning position
-    int winx = 0;
-    int winy = 0;
+    //winning position, constants
+    const unsigned int winx = 0;
+    const unsigned int winy = 0;
 
-    //array of pins
-    int pinArray[49] = {};
+    //array of pins, constant
+    const unsigned int pinArray[49] = {};
 
     //current column to render
     unsigned int column = 6;
