@@ -79,11 +79,11 @@ void setLEDArray(
     
     for(unsigned int row = 0; row < 7; row++){
         if (posx - 3 + row < 0){
-            for(unsigned int i = 0; i < 7; i++){
+            for (unsigned int i = 0; i < 7; i++){
                 LEDArray[row*7+i] = 1;
             }
         }    
-        else{
+        else {
             for(unsigned int column = 0; column < 7; column++){
 
 
@@ -100,6 +100,8 @@ void renderLEDColumn(
 ) {
     //render code
     //column needs to be passthrough
+
+    // cycling through columns
     if (*column == 0){
         *column = 6;
     }
@@ -119,7 +121,7 @@ void atVictoryPosition(
 ) {
     //if at win location, set all LEDs to 1
     if (posx == winx && posy == winy) {
-        for(std::size i = 0; i < 49; ++i){
+        for(int i = 0; i < 49; ++i){
             LEDArray[i] = 1;
         }
     }
@@ -153,7 +155,7 @@ void moveUp(
     const bool LEDArray[49]
 ){
     if(LEDArray[17] == 0){
-        --posy;
+        --*posy;
     }
 }
 
@@ -162,7 +164,7 @@ void moveDown(
     const bool LEDArray[49]
 ){
     if(LEDArray[31] == 0){
-        ++posy;
+        ++*posy;
     }
 }
 
@@ -171,7 +173,7 @@ void moveLeft(
     const bool LEDArray[49]
 ){
     if(LEDArray[23] == 0){
-        --posx;
+        --*posx;
     }
 }
 
@@ -180,7 +182,7 @@ void moveRight(
     const bool LEDArray[49]
 ){
     if(LEDArray[25] == 0){
-        ++posx;
+        ++*posx;
     }
 }
 
@@ -193,10 +195,12 @@ int main(void)
     // large array (10x10), constant (sample values in)
     const bool mazeArray[100] = {};
 
-    // smaller array (7x7) (filler code in)
+    // smaller array (7x7)
     bool LEDArray[49]  = {};
 
     //current player position
+    // note: since some of the functions use *, make sure to put variables
+    // in functions with & in front
     unsigned int posx = 0;
     unsigned int posy = 0;
 
