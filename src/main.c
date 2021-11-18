@@ -78,20 +78,24 @@ void setLEDArray(
 ) {
     
     for(unsigned int row = 0; row < 7; row++){
-        if (posx - 3 + row < 0){
+        //replace 9 with whatever the max column of mazeArray is
+        //checks if the entire row is out of bounds and should be 1
+        if (posx - 3 + row < 0 || posx - 3 + row > 9){
             for(unsigned int i = 0; i < 7; i++){
                 LEDArray[row*7+i] = 1;
             }
-        }    
+        }
         else{
             for(unsigned int column = 0; column < 7; column++){
-
-
+                if (posy - 3 + column < 0 || posy - 3 + column > 9){
+                    LEDArray[row*7 + column] = 1;
+                }
+                else{
+                    LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*7 + posy - 3 + column];
+                }
             }
         }    
     }
-
-
 }
 
 void renderLEDColumn(
@@ -191,7 +195,17 @@ int main(void)
 
     // C does not like variable sizes for arrays
     // large array (10x10), constant (sample values in)
-    const bool mazeArray[100] = {};
+    const bool mazeArray[100] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+                                 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+                                 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+                                 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+                                 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+                                 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+                                 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+    };
 
     // smaller array (7x7) (filler code in)
     bool LEDArray[49]  = {};
