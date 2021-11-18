@@ -267,27 +267,6 @@ int main(void)
     // as mentioned above, only one of the following code sections will be used
     // (depending on which of the #define statements at the top of this file has been uncommented)
 
-#ifdef BUTTON_BLINK
-    // Wait for the user to push the blue button, then blink the LED.
-
-    // wait for button press (active low)
-    while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-    }
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
-
-    while (1) // loop forever, blinking the LED
-    {
-        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-            //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
-            //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
-            //while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-            //}
-        }
-        
-        //HAL_Delay(10000);  // 250 milliseconds == 1/4 second
-    }
-    setLEDArray(mazeArray, LEDArray, posx, posy);
-
     while (1) {
         // render the maze
         renderLEDColumn(&column, pinstuff);
@@ -329,6 +308,29 @@ int main(void)
 
     
     }
+
+#ifdef BUTTON_BLINK
+    // Wait for the user to push the blue button, then blink the LED.
+
+    // wait for button press (active low)
+    while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+    }
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+
+    while (1) // loop forever, blinking the LED
+    {
+        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+            //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+            //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+            //while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+            //}
+        }
+        
+        //HAL_Delay(10000);  // 250 milliseconds == 1/4 second
+    }
+    setLEDArray(mazeArray, LEDArray, posx, posy);
+
+    
 #endif
 
 #ifdef LIGHT_SCHEDULER
