@@ -86,18 +86,19 @@ void setLEDArray(
         else {
         //replace 9 with whatever the max column of mazeArray is
         //checks if the entire row is out of bounds and should be 1
-        if (posx - 3 + row < 0 || posx - 3 + row > 9){
-            for(unsigned int i = 0; i < 7; i++){
-                LEDArray[row*7+i] = 1;
-            }
-        }
-        else{
-            for(unsigned int column = 0; column < 7; column++){
-                if (posy - 3 + column < 0 || posy - 3 + column > 9){
-                    LEDArray[row*7 + column] = 1;
+            if (posx - 3 + row < 0 || posx - 3 + row > 9){
+                for(unsigned int i = 0; i < 7; i++){
+                    LEDArray[row*7+i] = 1;
                 }
-                else{
-                    LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*7 + posy - 3 + column];
+            }
+            else{
+                for(unsigned int column = 0; column < 7; column++){
+                    if (posy - 3 + column < 0 || posy - 3 + column > 9){
+                        LEDArray[row*7 + column] = 1;
+                    }
+                    else{
+                        LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*10 + posy - 3 + column];
+                    }
                 }
             }
         }    
@@ -216,6 +217,7 @@ int main(void)
                                  1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
     };
 
+
     // smaller array (7x7)
     bool LEDArray[49]  = {};
 
@@ -235,20 +237,8 @@ int main(void)
     //current column to render
     unsigned int column = 6;
 
-    // test 
-    setLEDArray(mazeArray, LEDArray, 6, 9);
-    setLEDArray(mazeArray, LEDArray, 6, 9);
-    for (int i = 0; i<7; ++i) {
-        for (int j = 0; j < 7; ++j) {
-            if(LEDArray[i + j * 7]){
-                printf(1);
-            }
-            else{
-                printf(0);
-            }
-        }
-        printf('\n');
-    }
+
+
     // while loop later on which is main game loop
 
     HAL_Init(); // initialize the Hardware Abstraction Layer
