@@ -236,18 +236,7 @@ int main(void)
     //current column to render
     unsigned int column = 6;
 
-    setLEDArray(mazeArray, LEDArray, 6, 9);
-    for (int i = 0; i<7; ++i) {
-        for (int j = 0; j < 7; ++j) {
-            if(LEDArray[i + j * 7]){
-                printf(1);
-            }
-            else{
-                printf(0);
-            }
-        }
-        printf('\n');
-    }
+
 
     // while loop later on which is main game loop
 
