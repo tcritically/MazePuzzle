@@ -97,7 +97,7 @@ void setLEDArray(
                         LEDArray[row*7 + column] = 1;
                     }
                     else{
-                        LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*7 + posy - 3 + column];
+                        LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*10 + posy - 3 + column];
                     }
                 }
             }
