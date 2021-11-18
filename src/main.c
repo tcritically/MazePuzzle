@@ -27,7 +27,12 @@
 #include "ece198.h"
 
 // function declarations
-void setLEDArray(void);
+void setLEDArray(
+    const bool mazeArray[100],
+    bool LEDArray[49],
+    const unsigned int posx,
+    const unsigned int posy
+);
 
 void renderLEDColumn(
     unsigned int *column, 
@@ -38,7 +43,8 @@ void atVictoryPosition(
     const unsigned int posx, 
     const unsigned int poxy, 
     const unsigned int winx, 
-    const unsigned int winy
+    const unsigned int winy,
+    bool LEDArray[49]
 );
 
 ///*bool legalMove(bool LEDArray[49], char moveType[]);
@@ -64,9 +70,27 @@ void moveRight(
 );
 
 //function definitions
-void setLEDArray(void) {
-    // updating the board
-    // setting player position
+void setLEDArray(
+    const bool mazeArray[100],
+    bool LEDArray[49],
+    const unsigned int posx,
+    const unsigned int posy
+) {
+    
+    for(unsigned int row = 0; row < 7; row++){
+        if (posx - 3 + row < 0){
+            for(unsigned int i = 0; i < 7; i++){
+                LEDArray[row*7+i] = 1;
+            }
+        }    
+        else{
+            for(unsigned int column = 0; column < 7; column++){
+
+
+            }
+        }    
+    }
+
 
 }
 
@@ -90,17 +114,13 @@ void atVictoryPosition(
     const unsigned int posx, 
     const unsigned int posy, 
     const unsigned int winx, 
-    const unsigned int winy
+    const unsigned int winy,
+    bool LEDArray[49]
 ) {
-    // designated victory coords
-    bool return_value = false;
-    if (playerX == victoryX && playerY == victoryY) {
-        return_value = true;
-    }
-    // probably could adjust to just show all leds on here
-    if (return_value == true) {
-        for (int i = 0; i < 9; ++i) {
-        // set all the GPIO pins connected to lighting up the leds to high
+    //if at win location, set all LEDs to 1
+    if (posx == winx && posy == winy) {
+        for(std::size i = 0; i < 49; ++i){
+            LEDArray[i] = 1;
         }
     }
 }
