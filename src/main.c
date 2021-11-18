@@ -26,22 +26,40 @@
 
 #include "ece198.h"
 
-// functions for program
+// function declarations
 void setLEDArray(void);
+void renderLEDColumn(unsigned int *column, int pinArray[49]);
+void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY);
+///*bool legalMove(bool LEDArray[49], char moveType[]);
+//whenever we use a move method we need to call setLEDArray right after exiting the move method
+void moveUp(int *posy, bool LEDArray[49]);
+void moveDown(int *posy, bool LEDArray[49]);
+void moveLeft(int *posx, bool LEDArray[49]);
+void moveRight(int *posx, bool LEDArray[49]);
+
+//function definitions
 void setLEDArray(void) {
     // updating the board
     // setting player position
 
 }
-void renderLEDColumn(unsigned int column);
-void renderLEDColumn(unsigned int column) {
-    // parameter is column to render
+
+void renderLEDColumn(unsigned int *column, int pinArray[49]) {
+    
+    //render code
+    //column needs to be passthrough
+
+    if (*column == 0){
+        *column = 6;
+    }
+    else{
+        --*column;
+    }
 
 }
 
 // possible function for checking victory? (could change to a void function as well)
 // would be nice to pass these by constant reference (coding best practices :) )
-void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY);
 void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, const unsigned int victoryX, const unsigned int victoryY) {
     // designated victory coords
     bool return_value = false;
@@ -59,8 +77,9 @@ void atVictoryPosition(const unsigned int playerX, const unsigned int playerY, c
 
 // strings are weird, we could use ints for move types instead?
 // function checks if move made is possible
-bool legalMove(bool LEDArray[9], char moveType[]);
-bool legalMove(bool LEDArray[9], char moveType[]) {
+//deprecated, will use 4 different functions, one for each direction that checks legal AND makes move
+/*
+bool legalMove(bool LEDArray[49], char moveType[]) {
     bool return_value = true;
     // note: player is at index 4
     if (moveType == "RIGHT") {
@@ -74,6 +93,41 @@ bool legalMove(bool LEDArray[9], char moveType[]) {
         return_value = (LEDArray[7] == 0);
     }
     return return_value;
+}*/
+
+//player is at index 24
+//row 0 is the lowest row
+//column 0 is the leftmost
+void moveUp(int *posy, bool LEDArray[49]){
+
+    if(LEDArray[17] == 0){
+        --posy;
+    }
+
+}
+
+void moveDown(int *posy, bool LEDArray[49]){
+
+    if(LEDArray[31] == 0){
+        ++posy;
+    }
+
+}
+
+void moveLeft(int *posx, bool LEDArray[49]){
+
+    if(LEDArray[23] == 0){
+        --posx;
+    }
+
+}
+
+void moveRight(int *posx, bool LEDArray[49]){
+
+    if(LEDArray[25] == 0){
+        ++posx;
+    }
+
 }
 
 int main(void)
@@ -82,14 +136,25 @@ int main(void)
     ///////////////
 
     // C does not like variable sizes for arrays
-    // large aray (7x7) (sample values in)
-    bool mazeArray[49] = {};
+    // large array (10x10) (sample values in)
+    bool mazeArray[100] = {};
 
-    // smaller array (3x3) (filler code in)
-    bool LEDArray[9]  = {0, 1, 0,
-                         0, 0, 0,
-                         1, 0, 0
-    };
+    // smaller array (7x7) (filler code in)
+    bool LEDArray[49]  = {};
+
+    //current player position
+    int posx = 0;
+    int posy = 0;
+
+    //winning position
+    int winx = 0;
+    int winy = 0;
+
+    //array of pins
+    int pinArray[49] = {};
+
+    //current column to render
+    unsigned int column = 6;
 
     // while loop later on which is main game loop
 
