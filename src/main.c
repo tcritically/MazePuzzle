@@ -103,6 +103,7 @@ void setLEDArray(
         }    
     }
 }
+}
 
 void renderLEDColumn(
     unsigned int *column, 
@@ -234,6 +235,20 @@ int main(void)
     //current column to render
     unsigned int column = 6;
 
+    // test 
+    setLEDArray(mazeArray, LEDArray, 6, 9);
+    setLEDArray(mazeArray, LEDArray, 6, 9);
+    for (int i = 0; i<7; ++i) {
+        for (int j = 0; j < 7; ++j) {
+            if(LEDArray[i + j * 7]){
+                printf(1);
+            }
+            else{
+                printf(0);
+            }
+        }
+        printf('\n');
+    }
     // while loop later on which is main game loop
 
     HAL_Init(); // initialize the Hardware Abstraction Layer
@@ -280,6 +295,49 @@ int main(void)
         }
         
         //HAL_Delay(10000);  // 250 milliseconds == 1/4 second
+    }
+    setLEDArray(mazeArray, LEDArray, posx, posy);
+
+    while (1) {
+        // render the maze
+        renderLEDColumn(&column, pinstuff);
+
+        // PIN VALUES ARE ARBITARY
+        // buttons
+        // button up
+        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+            // placeholder pin values
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+            moveUp(&posy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+
+        }
+        // BUTTON DOWN
+        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+            // placeholder pin values
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+            moveDown(&posy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+
+        }
+        // BUTTON LEFT
+        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+            // placeholder pin values
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+            moveLeft(&posy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+
+        }
+        // BUTTON RIGHT
+        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+            // placeholder pin values
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+            moveRight(&posy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+
+        }
+
+    
     }
 #endif
 
