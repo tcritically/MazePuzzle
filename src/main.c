@@ -39,6 +39,7 @@ void max_init(void);
 
 
 //definitions
+// sends one byte
 void write_byte(uint8_t byte)
 {
 	    for(int i=8;i>0;--i)
@@ -49,6 +50,7 @@ void write_byte(uint8_t byte)
            }
 }
 
+// initializes one row for editing
 void write_max (uint8_t address, uint8_t data)
 {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
@@ -63,6 +65,7 @@ void write_max (uint8_t address, uint8_t data)
 	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);  // pull the CS pin HIGH
 }
 
+// initializing default values
 void max_init(void)
 {
     write_max(0x09, 0x00);       //  no decoding
@@ -73,8 +76,8 @@ void max_init(void)
 }
 
 
-//entirely original code for mazeGame
-//declarations
+// original code for mazeGame
+// declarations, explanations come in definitions
 int binaryRow(const bool LEDArray[49], int row);
 
 void setLEDArray(
@@ -123,6 +126,7 @@ void moveRight(
 );
 
 //function definitions
+// display current state of led maze
 void setLEDArray(
     const bool mazeArray[361],
     bool LEDArray[49],
@@ -152,6 +156,8 @@ void setLEDArray(
     LEDArray[24] = 1;
 }
 
+// function that takes array and returns binary sequence to be rendered on matrix
+// will represent maze
 int binaryRow(const bool LEDArray[49], int row){
 
     if (row == 7){
@@ -164,8 +170,6 @@ int binaryRow(const bool LEDArray[49], int row){
         if(LEDArray[row*7 + i] == 1){
             LEDRow += ( 1 << (7-i));
         }
-        
-
 
     }
 
@@ -173,8 +177,8 @@ int binaryRow(const bool LEDArray[49], int row){
 
 }
 
-void clearLED(
-) {
+// resetting maze
+void clearLED() {
     //render code
     for(int i = 1; i < 9; ++i){
 
@@ -188,11 +192,10 @@ void clearLED(
 	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);
 
     }
-    
-
 
 }
 
+// renders each row 
 void renderLED(
     const bool LEDArray[49]
 ) {
@@ -202,16 +205,10 @@ void renderLED(
         write_max(i+1, binaryRow(LEDArray, i));
 
     }
-    
-
 
 }
 
-
-
-
-// possible function for checking victory? (could change to a void function as well)
-// would be nice to pass these by constant reference (coding best practices :) )
+// function for checking if at victory position
 void atVictoryPosition(
     const unsigned int posx, 
     const unsigned int posy, 
@@ -252,6 +249,8 @@ bool legalMove(bool LEDArray[49], char moveType[]) {
 //player is at index 24
 //row 0 is the lowest row
 //column 0 is the leftmost
+
+// check if legal move, then update position
 void moveUp(
     unsigned int *posy, 
     const bool LEDArray[49]
@@ -475,10 +474,6 @@ int main(void)
     const unsigned int winx = 17;
     const unsigned int winy = 18;
 
-
-
-
-
     // while loop later on which is main game loop
 
     HAL_Init(); // initialize the Hardware Abstraction Layer
@@ -513,7 +508,7 @@ int main(void)
         // render the maze
         // PIN VALUES ARE ARBITARY
         // buttons
-        // button up
+        // BUTTON UP
         if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)) {
             // placeholder pin values
             while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)){
