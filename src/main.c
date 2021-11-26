@@ -37,11 +37,10 @@ void max_init(void);
 
 void write_byte(uint8_t byte)
 {
-	    for(int i=0;i<8;i++)
+	    for(int i=8;i>0;--i)
           {
 	    	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 0);  // Pull the CLK LOW
-	    	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, byte&0x80);// Write one BIT data MSB first
-             byte = byte<<1;  // shift the data to the left
+	    	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, byte&(0x01<<(i-1)));// Write one BIT data MSB first
              HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 1);  // Pull the CLK HIGH
            }
 }
@@ -49,9 +48,15 @@ void write_byte(uint8_t byte)
 void write_max (uint8_t address, uint8_t data)
 {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
-    write_byte(address);   //  write address
-    write_byte(data);  //  write data
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 1);  // pull the CS HIGH
+    for (int i=0;i<3; i++)
+	{
+		write_byte (0);
+		write_byte (0); 
+	}
+    write_byte (address);
+	write_byte (data); 
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);  // pull the CS pin HIGH
 }
 
 void max_init(void)
@@ -61,6 +66,7 @@ void max_init(void)
     write_max(0x0b, 0x07);       //  scan limit = 8 LEDs
     write_max(0x0c, 0x01);       //  power down =0，normal mode = 1
     write_max(0x0f, 0x00);       //  no test display
+    SerialPutc('m');
 }
 
 int binaryRow(const bool LEDArray[49], int row);
@@ -145,7 +151,7 @@ void setLEDArray(
 int binaryRow(const bool LEDArray[49], int row){
 
     if (row == 7){
-        return 0b00000000;
+        return 0;
     }
     int LEDRow = 0;
 
@@ -168,9 +174,10 @@ void renderLED(
     //render code
     for(int i = 0; i < 8; ++i){
 
-        write_max(i + 1, binaryRow(LEDArray, i));
+        write_max(i+1, binaryRow(LEDArray, i));
 
     }
+    SerialPutc('r');
     
 
 
@@ -260,26 +267,27 @@ int main(void)
     // C does not like variable sizes for arrays
     // large array (10x10), constant (sample values in)
     const bool mazeArray[100] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-                                 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-                                 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-                                 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
-                                 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-                                 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-                                 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                                 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+                                 0, 1, 0, 1, 0, 0, 0, 0, 0, 0,
+                                 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
-
+    //empty array for clearing out matrix at start
+    bool blank49[49] = {};
     // smaller array (7x7)
     bool LEDArray[49]  = {};
 
     //current player position
     // note: since some of the functions use *, make sure to put variables
     // in functions with & in front
-    unsigned int posx = 0;
-    unsigned int posy = 0;
+    unsigned int posx = 3;
+    unsigned int posy = 3;
 
     //winning position, constants
     const unsigned int winx = 0;
@@ -301,7 +309,7 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    InitializePin(GPIOB, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_3, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    InitializePin(GPIOB, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_3, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_PIN_RESET);  // on-board LED
     //InitializePin(GPIOB, GPIO_PIN_14, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
     
 
@@ -312,15 +320,23 @@ int main(void)
     // (anything we write to the serial port will appear in the terminal (i.e. serial monitor) in VSCode)
 
     SerialSetup(9600);
-
+    SerialPutc('x');
+    setLEDArray(mazeArray, LEDArray, posx, posy);
+    max_init();
+    renderLED(blank49);
+    renderLED(LEDArray);
     // as mentioned above, only one of the following code sections will be used
     // (depending on which of the #define statements at the top of this file has been uncommented)
-    printf("among us");
     while (1) {
         // render the maze
-        renderLED(LEDArray);
-
         // PIN VALUES ARE ARBITARY
+
+        if(!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13)){
+            while(!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13)){
+
+            }
+            renderLED(LEDArray);
+        }
         // buttons
         // button up
         if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
@@ -328,6 +344,7 @@ int main(void)
             moveUp(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            renderLED(LEDArray);
 
         }
         // BUTTON DOWN
@@ -336,6 +353,7 @@ int main(void)
             moveDown(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            renderLED(LEDArray);
 
         }
         // BUTTON LEFT
@@ -344,6 +362,7 @@ int main(void)
             moveLeft(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            renderLED(LEDArray);
 
         }
         // BUTTON RIGHT
@@ -352,6 +371,7 @@ int main(void)
             moveRight(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            renderLED(LEDArray);
 
         }
 
