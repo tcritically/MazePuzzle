@@ -472,11 +472,9 @@ int main(void)
     unsigned int posy = 1;
 
     //winning position, constants
-    //const unsigned int winx = 17;
-    //const unsigned int winy = 18;
-    //TEST
-    const unsigned int winx = 0;
-    const unsigned int winy = 1;
+    const unsigned int winx = 17;
+    const unsigned int winy = 18;
+
 
 
 
