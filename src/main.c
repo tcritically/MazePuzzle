@@ -70,7 +70,7 @@ void max_init(void)
 int binaryRow(const bool LEDArray[49], int row);
 
 void setLEDArray(
-    const bool mazeArray[100],
+    const bool mazeArray[361],
     bool LEDArray[49],
     const unsigned int posx,
     const unsigned int posy
@@ -112,7 +112,7 @@ void moveRight(
 
 //function definitions
 void setLEDArray(
-    const bool mazeArray[100],
+    const bool mazeArray[361],
     bool LEDArray[49],
     const unsigned int posx,
     const unsigned int posy
@@ -121,18 +121,18 @@ void setLEDArray(
     for(unsigned int row = 0; row < 7; row++){
         //replace 9 with whatever the max column of mazeArray is
         //checks if the entire row is out of bounds and should be 1
-            if (posx - 3 + row < 0 || posx - 3 + row > 9){
+            if (posx - 3 + row < 0 || posx - 3 + row > 18){
                 for(unsigned int i = 0; i < 7; i++){
                     LEDArray[row*7+i] = 1;
                 }
             }
             else{
                 for(unsigned int column = 0; column < 7; column++){
-                    if (posy - 3 + column < 0 || posy - 3 + column > 9){
+                    if (posy - 3 + column < 0 || posy - 3 + column > 18){
                         LEDArray[row*7 + column] = 1;
                     }
                     else{
-                        LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*10 + posy - 3 + column];
+                        LEDArray[row*7 + column] = mazeArray[(posx - 3 + row)*19 + posy - 3 + column];
                     }
                 }
             }
@@ -260,16 +260,26 @@ int main(void)
 
     // C does not like variable sizes for arrays
     // large array (10x10), constant (sample values in)
-    const bool mazeArray[100] = {1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-                                 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                                 1, 0, 1, 1, 1, 1, 1, 1, 0, 1,
-                                 1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-                                 1, 1, 1, 0, 1, 0, 1, 1, 1, 1,
-                                 1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-                                 1, 0, 0, 0, 1, 0, 1, 0, 0, 1,
-                                 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
-                                 1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-                                 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
+    const bool mazeArray[361] = {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                                 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                                 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                                 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                                 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1,
+                                 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1,
+                                 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1,
+                                 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+                                 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1,
+                                 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+                                 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+                                 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 
+                                 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1,
+                                 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0,
+                                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+
     };
 
     //empty array for clearing out matrix at start
@@ -281,11 +291,11 @@ int main(void)
     // note: since some of the functions use *, make sure to put variables
     // in functions with & in front
     unsigned int posx = 0;
-    unsigned int posy = 3;
+    unsigned int posy = 1;
 
     //winning position, constants
-    const unsigned int winx = 9;
-    const unsigned int winy = 6;
+    const unsigned int winx = 17;
+    const unsigned int winy = 18;
 
 
 
