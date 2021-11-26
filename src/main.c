@@ -26,15 +26,19 @@
 
 #include "ece198.h"
 
-// function declarations
 
-//code for controlling LED matrix taken from library on controllerstech.com
+
+//code for controlling LED matrix adapted from library on controllerstech.com
+
+//declarations
 void write_byte(uint8_t byte);
 
 void write_max(uint8_t address, uint8_t data);
 
 void max_init(void);
 
+
+//definitions
 void write_byte(uint8_t byte)
 {
 	    for(int i=8;i>0;--i)
@@ -48,13 +52,14 @@ void write_byte(uint8_t byte)
 void write_max (uint8_t address, uint8_t data)
 {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
-    for (int i=0;i<4; i++)
+    for (int i=0;i<3; i++)
 	{
 		write_byte (0);
 	    write_byte (0); 
 	}
     write_byte (address);
 	write_byte (data); 
+
 	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);  // pull the CS pin HIGH
 }
 
@@ -67,6 +72,9 @@ void max_init(void)
     write_max(0x0f, 0x00);       //  no test display
 }
 
+
+//entirely original code for mazeGame
+//declarations
 int binaryRow(const bool LEDArray[49], int row);
 
 void setLEDArray(
@@ -74,6 +82,9 @@ void setLEDArray(
     bool LEDArray[49],
     const unsigned int posx,
     const unsigned int posy
+);
+
+void clearLED( 
 );
 
 void renderLED( 
@@ -85,7 +96,8 @@ void atVictoryPosition(
     const unsigned int poxy, 
     const unsigned int winx, 
     const unsigned int winy,
-    bool LEDArray[49]
+    bool LEDArray[49],
+    bool *mazeWon
 );
 
 ///*bool legalMove(bool LEDArray[49], char moveType[]);
@@ -161,7 +173,25 @@ int binaryRow(const bool LEDArray[49], int row){
 
 }
 
+void clearLED(
+) {
+    //render code
+    for(int i = 1; i < 9; ++i){
 
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
+        for (int j=0;j<3; j++)
+	    {
+		    write_byte (i);
+	        write_byte (0); 
+	    }
+
+	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);
+
+    }
+    
+
+
+}
 
 void renderLED(
     const bool LEDArray[49]
@@ -177,6 +207,9 @@ void renderLED(
 
 }
 
+
+
+
 // possible function for checking victory? (could change to a void function as well)
 // would be nice to pass these by constant reference (coding best practices :) )
 void atVictoryPosition(
@@ -184,13 +217,15 @@ void atVictoryPosition(
     const unsigned int posy, 
     const unsigned int winx, 
     const unsigned int winy,
-    bool LEDArray[49]
+    bool LEDArray[49],
+    bool *mazeWon
 ) {
     //if at win location, set all LEDs to 1
     if (posx == winx && posy == winy) {
         for(int i = 0; i < 49; ++i){
             LEDArray[i] = 1;
         }
+        *mazeWon = 1;
     }
 }
 
@@ -253,6 +288,147 @@ void moveRight(
     }
 }
 
+//Entirely original code for GOL
+//declarations
+uint8_t GOLbinaryRow(
+    const bool GOLArray[8][8], 
+    int row
+);
+
+void GOLwrite_max (
+    uint8_t address, 
+    uint8_t data
+);
+
+void renderGOL(
+    const bool GOLArray[8][8] 
+);
+
+void drawGOL(
+    const bool world[50][50],
+    bool GOLArray[8][8],
+    const unsigned int posx,
+    const unsigned int posy
+);
+
+void stepGOL(
+    bool world[50][50], 
+    int width, 
+    int height
+);
+
+//definitions
+
+uint8_t GOLbinaryRow(const bool GOLArray[8][8], int row){
+
+    int GOLRow = 0;
+
+    for(int i = 0; i < 8; ++i){
+
+        if(GOLArray[i][row] == 1){
+            GOLRow += ( 1 << (7-i));
+        }
+        
+
+
+    }
+
+    return(GOLRow);
+
+}
+
+void GOLwrite_max (uint8_t address, uint8_t data)
+{
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
+    for (int i=0;i<2; i++)
+	{
+		write_byte (0);
+	    write_byte (0); 
+	}
+    write_byte (address);
+	write_byte (data); 
+    for (int i=0;i<1; i++)
+	{
+		write_byte (0);
+	    write_byte (0); 
+	}
+
+	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);  // pull the CS pin HIGH
+}
+
+void renderGOL(const bool GOLArray[8][8]){
+    
+    for(int i = 0; i < 8; ++i){
+        GOLwrite_max(i+1, GOLbinaryRow(GOLArray, i));
+
+    }
+    
+
+
+}
+
+void drawGOL(const bool world[50][50], bool GOLArray[8][8], const unsigned int posx, const unsigned int posy){
+
+    for(unsigned int row = 0; row < 8; row++){
+        //replace 9 with whatever the max column of mazeArray is
+        //checks if the entire row is out of bounds and should be 1
+            if (posx + row < 0 || posx + row > 49){
+                for(unsigned int i = 0; i < 8; i++){
+                    GOLArray[i][row] = 1;
+                }
+            }
+            else{
+                for(unsigned int column = 0; column < 8; column++){
+                    if (posy + column < 0 || posy + column > 49){
+                        GOLArray[column][row] = 1;
+                    }
+                    else{
+                        GOLArray[column][row] = world[posx + row][posy + column];
+                    }
+                }
+            }
+    }
+    renderGOL(GOLArray);
+}
+
+void stepGOL(bool world[50][50], int width, int height){
+
+    bool neworld[50][50];
+    for (int x = 0; x < width; x++){
+        for (int y = 0; y < height; y++){
+            int count = 0;
+            for (int x1 = x - 1; x1 <= x + 1; ++x1){
+                for (int y1 = y - 1; y1 <= y + 1; ++y1){
+                    if (world[(x1 + width) % width][(y1 + height) % height]){
+                        ++count;
+                    }
+                }
+            }
+                    
+                        
+      if (world[x][y]){
+          --count;
+      }
+      if(count == 3 | count == 2){
+          neworld[x][y] = 1;
+      }
+      else{
+          neworld[x][y] = 0;
+      }
+      
+ 
+    }
+    } 
+ 
+    for (int x = 0; x < width; ++x){
+        for (int y = 0; y < height; ++y){
+            world[x][y] = neworld[x][y];
+        }
+    }
+
+}
+
+
 int main(void)
 {
     // MAZE CODE //
@@ -282,6 +458,8 @@ int main(void)
 
     };
 
+    //to track whether maze is won
+    bool mazeWon = 0;
     //empty array for clearing out matrix at start
     bool blank49[49] = {};
     // smaller array (7x7)
@@ -294,8 +472,11 @@ int main(void)
     unsigned int posy = 1;
 
     //winning position, constants
-    const unsigned int winx = 17;
-    const unsigned int winy = 18;
+    //const unsigned int winx = 17;
+    //const unsigned int winy = 18;
+    //TEST
+    const unsigned int winx = 0;
+    const unsigned int winy = 1;
 
 
 
@@ -322,15 +503,15 @@ int main(void)
 
     // set up for serial communication to the host computer
     // (anything we write to the serial port will appear in the terminal (i.e. serial monitor) in VSCode)
-
     SerialSetup(9600);
     setLEDArray(mazeArray, LEDArray, posx, posy);
     max_init();
+    clearLED();
     renderLED(blank49);
     renderLED(LEDArray);
     // as mentioned above, only one of the following code sections will be used
     // (depending on which of the #define statements at the top of this file has been uncommented)
-    while (1) {
+    while (!mazeWon) {
         // render the maze
         // PIN VALUES ARE ARBITARY
         // buttons
@@ -341,7 +522,7 @@ int main(void)
             }
             moveUp(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
-            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray, &mazeWon);
             renderLED(LEDArray);
 
         }
@@ -352,7 +533,7 @@ int main(void)
             }
             moveDown(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
-            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray, &mazeWon);
             renderLED(LEDArray);
 
         }
@@ -363,7 +544,7 @@ int main(void)
             }
             moveLeft(&posx, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
-            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray, &mazeWon);
             renderLED(LEDArray);
 
         }
@@ -374,37 +555,109 @@ int main(void)
             }
             moveRight(&posx, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
-            atVictoryPosition(posx, posy, winx, winy, LEDArray);
+            atVictoryPosition(posx, posy, winx, winy, LEDArray, &mazeWon);
             renderLED(LEDArray);
 
         }
 
-    
+
     }
 
-#ifdef BUTTON_BLINK
-    // Wait for the user to push the blue button, then blink the LED.
-
-    // wait for button press (active low)
-    while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-    }
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
-
-    while (1) // loop forever, blinking the LED
-    {
-        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-            //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
-            //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
-            //while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
-            //}
+    // GOL CODE //
+    ///////////////
+    srand(HAL_GetTick());
+    bool world[50][50];
+    bool GOLdisplay[8][8];
+    posx = 10;
+    posy = 10;
+    int delay = 1000;
+    while(1){
+        for (int x = 0; x < 50; x++){
+            for (int y = 0; y < 50; y++){
+                if (rand() % 100 > 90){
+                    world[x][y] = 1;
+                }
+                else{
+                    world[x][y] = 0;
+                }
+            }   
         }
-        
-        //HAL_Delay(10000);  // 250 milliseconds == 1/4 second
-    }
-    
+        while(1){
 
-    
-#endif
+            drawGOL(world, GOLdisplay, posx, posy);
+            stepGOL(world, 50, 50);
+            //button up
+            if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)) {
+                while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)){
+                }
+                delay/=2;
+
+                }
+            // BUTTON DOWN
+            if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)) {
+                while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)){    
+                }
+                delay*=2;
+
+            }
+            HAL_Delay(delay);
+            if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)){
+                while(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)){
+                }
+                while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)){
+
+                    // button up
+                    if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)) {
+                        while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)){
+                        }
+                        if(posy>0){
+                            --posy;
+                        }
+                        drawGOL(world, GOLdisplay, posx, posy);
+
+                    }
+                    // BUTTON DOWN
+                    if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)) {
+                        while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)){
+                        }
+                        if(posy<43){
+                            ++posy;
+                        }
+                        drawGOL(world, GOLdisplay, posx, posy);
+
+                    }
+                    // BUTTON LEFT
+                    if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)) {
+                        while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)){
+                        }
+                        if(posx>0){
+                            --posx;
+                        }
+                        drawGOL(world, GOLdisplay, posx, posy);
+
+                    }
+                    // BUTTON RIGHT
+                    if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15)) {
+                        while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15)){
+                        }
+                        if(posx<43){
+                            ++posx;
+                        }
+                        drawGOL(world, GOLdisplay, posx, posy);
+
+                    }
+                    if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)){
+                        break;
+                    }
+                }
+            }
+
+        }
+    }
+
+}
+
+
 
 #ifdef LIGHT_SCHEDULER
     // Turn on the LED five seconds after reset, and turn it off again five seconds later.
@@ -576,35 +829,7 @@ int main(void)
     }
 #endif
 
-#ifdef PWM
-    // Use Pulse Width Modulation to fade the LED in and out.
-    uint16_t period = 100, prescale = 16;
 
-    __TIM2_CLK_ENABLE();  // enable timer 2
-    TIM_HandleTypeDef pwmTimerInstance;  // this variable stores an instance of the timer
-    InitializePWMTimer(&pwmTimerInstance, TIM2, period, prescale);   // initialize the timer instance
-    InitializePWMChannel(&pwmTimerInstance, TIM_CHANNEL_1);          // initialize one channel (can use others for motors, etc)
-
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_AF1_TIM2); // connect the LED to the timer output
-
-    while (true)
-    {
-        // fade the LED in by slowly increasing the duty cycle
-        for (uint32_t i = 0; i < period; ++i)
-        {
-            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-            HAL_Delay(5);
-        }
-        // fade the LED out by slowly decreasing the duty cycle
-        for (uint32_t i = period; i > 0; --i)
-        {
-            SetPWMDutyCycle(&pwmTimerInstance, TIM_CHANNEL_1, i);
-            HAL_Delay(5);
-        }
-    }
-#endif
-    return 0;
-}
 
 // This function is called by the HAL once every millisecond
 void SysTick_Handler(void)
