@@ -48,14 +48,13 @@ void write_byte(uint8_t byte)
 void write_max (uint8_t address, uint8_t data)
 {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
-    for (int i=0;i<3; i++)
+    for (int i=0;i<4; i++)
 	{
 		write_byte (0);
-		write_byte (0); 
+	    write_byte (0); 
 	}
     write_byte (address);
 	write_byte (data); 
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
 	HAL_GPIO_WritePin (GPIOB, GPIO_PIN_5, 1);  // pull the CS pin HIGH
 }
 
@@ -66,7 +65,6 @@ void max_init(void)
     write_max(0x0b, 0x07);       //  scan limit = 8 LEDs
     write_max(0x0c, 0x01);       //  power down =0，normal mode = 1
     write_max(0x0f, 0x00);       //  no test display
-    SerialPutc('m');
 }
 
 int binaryRow(const bool LEDArray[49], int row);
@@ -121,12 +119,6 @@ void setLEDArray(
 ) {
     
     for(unsigned int row = 0; row < 7; row++){
-        if (posx - 3 + row < 0){
-            for (unsigned int i = 0; i < 7; i++){
-                LEDArray[row*7+i] = 1;
-            }
-        }    
-        else {
         //replace 9 with whatever the max column of mazeArray is
         //checks if the entire row is out of bounds and should be 1
             if (posx - 3 + row < 0 || posx - 3 + row > 9){
@@ -144,8 +136,8 @@ void setLEDArray(
                     }
                 }
             }
-        }    
     }
+    LEDArray[24] = 1;
 }
 
 int binaryRow(const bool LEDArray[49], int row){
@@ -157,7 +149,10 @@ int binaryRow(const bool LEDArray[49], int row){
 
     for(int i = 0; i <7; ++i){
 
-        LEDRow += ( LEDArray[row*7 + i] << (7-i));
+        if(LEDArray[row*7 + i] == 1){
+            LEDRow += ( 1 << (7-i));
+        }
+        
 
 
     }
@@ -177,7 +172,6 @@ void renderLED(
         write_max(i+1, binaryRow(LEDArray, i));
 
     }
-    SerialPutc('r');
     
 
 
@@ -227,7 +221,7 @@ void moveUp(
     unsigned int *posy, 
     const bool LEDArray[49]
 ){
-    if(LEDArray[17] == 0){
+    if(LEDArray[23] == 0){
         --*posy;
     }
 }
@@ -236,7 +230,7 @@ void moveDown(
     unsigned int *posy, 
     const bool LEDArray[49]
 ){
-    if(LEDArray[31] == 0){
+    if(LEDArray[25] == 0){
         ++*posy;
     }
 }
@@ -245,7 +239,7 @@ void moveLeft(
     unsigned int *posx, 
     const bool LEDArray[49]
 ){
-    if(LEDArray[23] == 0){
+    if(LEDArray[17] == 0){
         --*posx;
     }
 }
@@ -254,7 +248,7 @@ void moveRight(
     unsigned int *posx, 
     const bool LEDArray[49]
 ){
-    if(LEDArray[25] == 0){
+    if(LEDArray[31] == 0){
         ++*posx;
     }
 }
@@ -266,16 +260,16 @@ int main(void)
 
     // C does not like variable sizes for arrays
     // large array (10x10), constant (sample values in)
-    const bool mazeArray[100] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-                                 0, 1, 0, 1, 0, 0, 0, 0, 0, 0,
-                                 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    const bool mazeArray[100] = {1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+                                 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                                 1, 0, 1, 1, 1, 1, 1, 1, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+                                 1, 1, 1, 0, 1, 0, 1, 1, 1, 1,
+                                 1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 1, 0, 0, 1,
+                                 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+                                 1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+                                 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
     };
 
     //empty array for clearing out matrix at start
@@ -286,12 +280,12 @@ int main(void)
     //current player position
     // note: since some of the functions use *, make sure to put variables
     // in functions with & in front
-    unsigned int posx = 3;
+    unsigned int posx = 0;
     unsigned int posy = 3;
 
     //winning position, constants
-    const unsigned int winx = 0;
-    const unsigned int winy = 0;
+    const unsigned int winx = 9;
+    const unsigned int winy = 6;
 
 
 
@@ -310,7 +304,7 @@ int main(void)
     // initialize the pins to be input, output, alternate function, etc...
 
     InitializePin(GPIOB, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_3, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_PIN_RESET);  // on-board LED
-    //InitializePin(GPIOB, GPIO_PIN_14, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
+    InitializePin(GPIOB, GPIO_PIN_1 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
     
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
@@ -320,7 +314,6 @@ int main(void)
     // (anything we write to the serial port will appear in the terminal (i.e. serial monitor) in VSCode)
 
     SerialSetup(9600);
-    SerialPutc('x');
     setLEDArray(mazeArray, LEDArray, posx, posy);
     max_init();
     renderLED(blank49);
@@ -330,17 +323,12 @@ int main(void)
     while (1) {
         // render the maze
         // PIN VALUES ARE ARBITARY
-
-        if(!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13)){
-            while(!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13)){
-
-            }
-            renderLED(LEDArray);
-        }
         // buttons
         // button up
-        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+        if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)) {
             // placeholder pin values
+            while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)){
+            }
             moveUp(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
@@ -348,8 +336,10 @@ int main(void)
 
         }
         // BUTTON DOWN
-        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+        if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)) {
             // placeholder pin values
+            while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)){
+            }
             moveDown(&posy, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
@@ -357,18 +347,22 @@ int main(void)
 
         }
         // BUTTON LEFT
-        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+        if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)) {
             // placeholder pin values
-            moveLeft(&posy, LEDArray);
+            while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)){
+            }
+            moveLeft(&posx, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
             renderLED(LEDArray);
 
         }
         // BUTTON RIGHT
-        if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14)) {
+        if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15)) {
             // placeholder pin values
-            moveRight(&posy, LEDArray);
+            while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15)){
+            }
+            moveRight(&posx, LEDArray);
             setLEDArray(mazeArray, LEDArray, posx, posy);
             atVictoryPosition(posx, posy, winx, winy, LEDArray);
             renderLED(LEDArray);
