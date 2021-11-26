@@ -289,20 +289,24 @@ void moveRight(
 
 //Entirely original code for GOL
 //declarations
+//converts one row gol array to matrix displayable binary sequence
 uint8_t GOLbinaryRow(
     const bool GOLArray[8][8], 
     int row
 );
 
+//calls write_bit to display a row on the matrix
 void GOLwrite_max (
     uint8_t address, 
     uint8_t data
 );
 
+//calls write_max for each row to display array on the matrix
 void renderGOL(
     const bool GOLArray[8][8] 
 );
 
+//sets display array based on larger world array and calls render
 void drawGOL(
     const bool world[50][50],
     bool GOLArray[8][8],
@@ -310,6 +314,7 @@ void drawGOL(
     const unsigned int posy
 );
 
+//advances state of GOL simulation
 void stepGOL(
     bool world[50][50], 
     int width, 
@@ -358,7 +363,7 @@ void GOLwrite_max (uint8_t address, uint8_t data)
 void renderGOL(const bool GOLArray[8][8]){
     
     for(int i = 0; i < 8; ++i){
-        GOLwrite_max(i+1, GOLbinaryRow(GOLArray, i));
+        write_max(i+1, GOLbinaryRow(GOLArray, i));
 
     }
     
@@ -392,6 +397,7 @@ void drawGOL(const bool world[50][50], bool GOLArray[8][8], const unsigned int p
 
 void stepGOL(bool world[50][50], int width, int height){
 
+    //temp array representing new state
     bool neworld[50][50];
     for (int x = 0; x < width; x++){
         for (int y = 0; y < height; y++){
@@ -404,10 +410,11 @@ void stepGOL(bool world[50][50], int width, int height){
                 }
             }
                     
-                        
+    //don't count itself as a neighbour  
       if (world[x][y]){
           --count;
       }
+      //if 3 or 2 neighbours
       if(count == 3 | count == 2){
           neworld[x][y] = 1;
       }
@@ -419,6 +426,7 @@ void stepGOL(bool world[50][50], int width, int height){
     }
     } 
  
+    //replace world array with new state
     for (int x = 0; x < width; ++x){
         for (int y = 0; y < height; ++y){
             world[x][y] = neworld[x][y];
@@ -579,14 +587,14 @@ int main(void)
 
             drawGOL(world, GOLdisplay, posx, posy);
             stepGOL(world, 50, 50);
-            //button up
+            //button up speeds up simulation
             if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)) {
                 while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)){
                 }
                 delay/=2;
 
                 }
-            // BUTTON DOWN
+            // BUTTON DOWN slows down
             if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)) {
                 while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)){    
                 }
@@ -599,7 +607,7 @@ int main(void)
                 }
                 while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)){
 
-                    // button up
+                    // button up moves display
                     if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)) {
                         while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_13)){
                         }
@@ -609,7 +617,7 @@ int main(void)
                         drawGOL(world, GOLdisplay, posx, posy);
 
                     }
-                    // BUTTON DOWN
+                    // BUTTON DOWN moves display
                     if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)) {
                         while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_1)){
                         }
@@ -619,7 +627,7 @@ int main(void)
                         drawGOL(world, GOLdisplay, posx, posy);
 
                     }
-                    // BUTTON LEFT
+                    // BUTTON LEFT moves display
                     if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)) {
                         while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_14)){
                         }
@@ -629,7 +637,7 @@ int main(void)
                         drawGOL(world, GOLdisplay, posx, posy);
 
                     }
-                    // BUTTON RIGHT
+                    // BUTTON RIGHT moves display
                     if (!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15)) {
                         while(!HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15)){
                         }
