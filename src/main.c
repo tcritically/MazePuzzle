@@ -87,13 +87,19 @@ void setLEDArray(
     const unsigned int posy
 );
 
+
+//turns all LEDs off
 void clearLED( 
 );
 
+
+//calls write_max on each row in LEDArray to display it
 void renderLED( 
     const bool LEDArray[49]
 );
 
+
+//checks if player is at victory position
 void atVictoryPosition(
     const unsigned int posx, 
     const unsigned int poxy, 
@@ -327,6 +333,7 @@ uint8_t GOLbinaryRow(const bool GOLArray[8][8], int row){
 
     int GOLRow = 0;
 
+    //for each entry in the row of the array, bitshift it into the binary version of the row
     for(int i = 0; i < 8; ++i){
 
         if(GOLArray[i][row] == 1){
@@ -344,13 +351,16 @@ uint8_t GOLbinaryRow(const bool GOLArray[8][8], int row){
 void GOLwrite_max (uint8_t address, uint8_t data)
 {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);   // Pull the CS pin LOW
+    //skip the first two matrices
     for (int i=0;i<2; i++)
 	{
 		write_byte (0);
 	    write_byte (0); 
 	}
+    //write data on third
     write_byte (address);
 	write_byte (data); 
+    //skip fourth matrix
     for (int i=0;i<1; i++)
 	{
 		write_byte (0);
@@ -362,6 +372,7 @@ void GOLwrite_max (uint8_t address, uint8_t data)
 
 void renderGOL(const bool GOLArray[8][8]){
     
+    //for each of the 8 rows, call write_max to display the row
     for(int i = 0; i < 8; ++i){
         write_max(i+1, GOLbinaryRow(GOLArray, i));
 
